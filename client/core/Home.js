@@ -1,29 +1,29 @@
-import React, {useState, useEffect} from 'react'
-import { makeStyles } from '@material-ui/core/styles'
-import Card from '@material-ui/core/Card'
-import Divider from '@material-ui/core/Divider'
-import {listPublished} from './../course/api-course'
-import {listEnrolled, listCompleted} from './../enrollment/api-enrollment'
-import Typography from '@material-ui/core/Typography'
-import auth from './../auth/auth-helper'
-import Courses from './../course/Courses'
-import Enrollments from '../enrollment/Enrollments'
+import React, {useState, useEffect} from 'react'; // Import necessary hooks and React library
+import { makeStyles } from '@material-ui/core/styles'; // Import makeStyles for styling
+import Card from '@material-ui/core/Card'; // Import Card component from Material-UI
+import Divider from '@material-ui/core/Divider'; // Import Divider component from Material-UI
+import {listPublished} from './../course/api-course'; // Import listPublished function for fetching published courses
+import {listEnrolled, listCompleted} from './../enrollment/api-enrollment'; // Import listEnrolled and listCompleted functions for fetching enrollment data
+import Typography from '@material-ui/core/Typography'; // Import Typography component from Material-UI
+import auth from './../auth/auth-helper'; // Import authentication helper
+import Courses from './../course/Courses'; // Import Courses component
+import Enrollments from '../enrollment/Enrollments'; // Import Enrollments component
 
-
+// Define custom styles using makeStyles hook
 const useStyles = makeStyles(theme => ({
   card: {
-    width:'90%',
+    width: '90%',
     margin: 'auto',
     marginTop: 20,
     marginBottom: theme.spacing(2),
     padding: 20,
-    backgroundColor: '#ffffff' 
+    backgroundColor: '#ffffff'
   },
   extraTop: {
     marginTop: theme.spacing(12)
   },
   title: {
-    padding:`${theme.spacing(3)}px ${theme.spacing(2.5)}px ${theme.spacing(2)}px`,
+    padding: `${theme.spacing(3)}px ${theme.spacing(2.5)}px ${theme.spacing(2)}px`,
     color: theme.palette.openTitle
   },
   media: {
@@ -45,14 +45,14 @@ const useStyles = makeStyles(theme => ({
     textAlign: 'left'
   },
   enrolledTitle: {
-    color:'#efefef',
+    color: '#efefef',
     marginBottom: 5
   },
-  action:{
+  action: {
     margin: '0 10px'
   },
   enrolledCard: {
-    backgroundColor: '#616161',
+    backgroundColor: '#616161'
   },
   divider: {
     marginBottom: 16,
@@ -63,61 +63,82 @@ const useStyles = makeStyles(theme => ({
     marginBottom: 12,
     marginLeft: 8
   }
-}))
+}));
 
-export default function Home(){
-  const classes = useStyles()
-  const jwt = auth.isAuthenticated()
-  const [courses, setCourses] = useState([])
-  const [enrolled, setEnrolled] = useState([])
+// Define the Home component
+export default function Home() {
+  const classes = useStyles(); // Use the custom styles
+  const jwt = auth.isAuthenticated(); // Get the authentication token if the user is authenticated
+  const [courses, setCourses] = useState([]); // Initialize state to store published courses
+  const [enrolled, setEnrolled] = useState([]); // Initialize state to store enrolled courses
+
+  // useEffect to fetch enrolled courses when the component mounts
   useEffect(() => {
-    const abortController = new AbortController()
-    const signal = abortController.signal
+    const abortController = new AbortController(); // Create an AbortController to cancel fetch requests
+    const signal = abortController.signal; // Get the signal from the AbortController
+
+    // Fetch enrolled courses
     listEnrolled({t: jwt.token}, signal).then((data) => {
       if (data.error) {
-        console.log(data.error)
+        console.log(data.error); // Log error if any
       } else {
-        setEnrolled(data)
+        setEnrolled(data); // Set the enrolled courses state
       }
-    })
-    return function cleanup(){
-      abortController.abort()
-    }
-  }, [])
+    });
+
+    // Cleanup function to abort the fetch request if the component unmounts
+    return function cleanup() {
+      abortController.abort();
+    };
+  }, [jwt.token]); // Dependency array ensures the effect runs only when the jwt.token changes
+
+  // useEffect to fetch published courses when the component mounts
   useEffect(() => {
-    const abortController = new AbortController()
-    const signal = abortController.signal
+    const abortController = new AbortController(); // Create an AbortController to cancel fetch requests
+    const signal = abortController.signal; // Get the signal from the AbortController
+
+    // Fetch published courses
     listPublished(signal).then((data) => {
       if (data.error) {
-        console.log(data.error)
+        console.log(data.error); // Log error if any
       } else {
-        setCourses(data)
+        setCourses(data); // Set the published courses state
       }
-    })
-    return function cleanup(){
-      abortController.abort()
-    }
-  }, [])
-    return (<div className={classes.extraTop}>
+    });
+
+    // Cleanup function to abort the fetch request if the component unmounts
+    return function cleanup() {
+      abortController.abort();
+    };
+  }, []); // Empty dependency array ensures the effect runs only once when the component mounts
+
+  return (
+    <div className={classes.extraTop}>
+      {/* Conditionally render enrolled courses if the user is authenticated */}
       {auth.isAuthenticated().user && (
-      <Card className={`${classes.card} ${classes.enrolledCard}`}>
-        <Typography variant="h6" component="h2" className={classes.enrolledTitle}>
+        <Card className={`${classes.card} ${classes.enrolledCard}`}>
+          <Typography variant="h6" component="h2" className={classes.enrolledTitle}>
             Courses you are enrolled in
-        </Typography>
-        {enrolled.length != 0 ? (<Enrollments enrollments={enrolled}/>)
-                             : (<Typography variant="body1" className={classes.noTitle}>No courses.</Typography>)
-        }
-      </Card>
+          </Typography>
+          {/* Render the Enrollments component if there are enrolled courses, otherwise show a message */}
+          {enrolled.length !== 0 ? (
+            <Enrollments enrollments={enrolled} />
+          ) : (
+            <Typography variant="body1" className={classes.noTitle}>No courses.</Typography>
+          )}
+        </Card>
       )}
       <Card className={classes.card}>
         <Typography variant="h5" component="h2">
-            All Courses
+          All Courses
         </Typography>
-        {(courses.length != 0 && courses.length != enrolled.length) ? (<Courses courses={courses} common={enrolled}/>) 
-                             : (<Typography variant="body1" className={classes.noTitle}>No new courses.</Typography>)
-        }
+        {/* Render the Courses component if there are new courses, otherwise show a message */}
+        {(courses.length !== 0 && courses.length !== enrolled.length) ? (
+          <Courses courses={courses} common={enrolled} />
+        ) : (
+          <Typography variant="body1" className={classes.noTitle}>No new courses.</Typography>
+        )}
       </Card>
     </div>
-    )
+  );
 }
-

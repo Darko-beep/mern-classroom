@@ -18,7 +18,7 @@
   "homepage": "https://github.com/shamahoque/mern-classroom",
   "main": "./dist/server.generated.js",
   "scripts": {
-    "development": "nodemon",
+    "development": "NODE_OPTIONS=--openssl-legacy-provider nodemon",
     "build": "webpack --config webpack.config.client.production.js && webpack --mode=production --config webpack.config.server.js",
     "start": "NODE_ENV=production node ./dist/server.generated.js"
   },
@@ -47,6 +47,7 @@
     "compression": "1.7.4",
     "cookie-parser": "1.4.5",
     "cors": "2.8.5",
+    "dotenv": "^16.4.5",
     "express": "4.17.1",
     "express-jwt": "5.3.1",
     "formidable": "1.2.2",

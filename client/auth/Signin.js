@@ -1,3 +1,4 @@
+// Import necessary modules and components from React and Material-UI
 import React, {useState} from 'react'
 import Card from '@material-ui/core/Card'
 import CardActions from '@material-ui/core/CardActions'
@@ -11,6 +12,7 @@ import auth from './../auth/auth-helper'
 import {Redirect} from 'react-router-dom'
 import {signin} from './api-auth.js'
 
+// Define styles using Material-UI's makeStyles hook
 const useStyles = makeStyles(theme => ({
   card: {
     maxWidth: 600,
@@ -37,8 +39,11 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
+// Define the Signin component
 export default function Signin(props) {
+  // Use the styles defined above
   const classes = useStyles()
+  // Define state variables using useState hook
   const [values, setValues] = useState({
       email: '',
       password: '',
@@ -46,37 +51,46 @@ export default function Signin(props) {
       redirectToReferrer: false
   })
 
+  // Handle form submission
   const clickSubmit = () => {
+    // Create a user object from the state values
     const user = {
       email: values.email || undefined,
       password: values.password || undefined
     }
 
+    // Call the signin function and handle the response
     signin(user).then((data) => {
       if (data.error) {
+        // If there's an error, update the state with the error message
         setValues({ ...values, error: data.error})
       } else {
+        // If successful, authenticate the user and redirect
         auth.authenticate(data, () => {
-          setValues({ ...values, error: '',redirectToReferrer: true})
+          setValues({ ...values, error: '', redirectToReferrer: true})
         })
       }
     })
   }
 
+  // Handle changes to the input fields
   const handleChange = name => event => {
     setValues({ ...values, [name]: event.target.value })
   }
 
+  // Destructure from and redirectToReferrer from the state
   const {from} = props.location.state || {
       from: {
         pathname: '/'
       }
   }
   const {redirectToReferrer} = values
+  // If redirectToReferrer is true, redirect to the original page
   if (redirectToReferrer) {
       return (<Redirect to={from}/>)
   }
 
+  // Render the Signin form
   return (
       <Card className={classes.card}>
         <CardContent>
